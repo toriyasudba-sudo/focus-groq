@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Фокус — решай задачи быстро</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0e0e0e; --bg2: #161616; --amber: #f5a623; --amber-dim: #7a530f;
+    --text: #e8e4dc; --text-muted: #7a7670; --text-dim: #4a4845;
+    --border: #2a2826; --border-bright: #3a3835;
+  }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Sans', sans-serif; font-weight: 300; min-height: 100vh; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 80px 80px; opacity: 0.3; pointer-events: none; z-index: 0;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header { border-bottom: 1px solid var(--border); padding: 20px 0; }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--amber); }
+  .tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+  .hero { padding: 80px 0 60px; border-bottom: 1px solid var(--border); }
+  .hero-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--amber); text-transform: uppercase; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+  .hero-kicker::before { content: ''; display: block; width: 28px; height: 1px; background: var(--amber); }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 10vw, 96px); line-height: 0.92; letter-spacing: 1px; color: var(--text); margin-bottom: 32px; }
+  h1 span { color: var(--amber); }
+  .hero-desc { font-size: 16px; line-height: 1.7; color: var(--text-muted); max-width: 480px; font-weight: 300; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 36px; }
+  .pill { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.5px; padding: 5px 12px; border: 1px solid var(--border-bright); color: var(--text-muted); border-radius: 2px; background: var(--bg2); }
+  .input-section { padding: 60px 0; border-bottom: 1px solid var(--border); }
+  .section-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .task-area { width: 100%; background: var(--bg2); border: 1px solid var(--border-bright); border-radius: 3px; color: var(--text); font-family: 'IBM Plex Sans', sans-serif; font-size: 16px; font-weight: 300; line-height: 1.7; padding: 20px; resize: vertical; min-height: 120px; outline: none; transition: border-color 0.2s; caret-color: var(--amber); }
+  .task-area::placeholder { color: var(--text-dim); }
+  .task-area:focus { border-color: var(--amber-dim); }
+  .submit-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; gap: 12px; }
+  .hint { font-size: 12px; color: var(--text-dim); font-family: 'IBM Plex Mono', monospace; flex: 1; }
+  .btn-run { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; background: var(--amber); color: #0e0e0e; border: none; padding: 10px 32px; border-radius: 2px; cursor: pointer; transition: opacity 0.15s, transform 0.1s; white-space: nowrap; }
+  .btn-run:hover { opacity: 0.85; }
+  .btn-run:active { transform: scale(0.98); }
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+  .response-section { padding: 40px 0 80px; display: none; }
+  .response-section.visible { display: block; }
+  .response-box { background: var(--bg2); border: 1px solid var(--border-bright); border-radius: 3px; padding: 28px; min-height: 100px; }
+  .response-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .dot { width: 7px; height: 7px; background: var(--amber); border-radius: 50%; animation: pulse 1.2s ease-in-out infinite; }
+  .dot.done { animation: none; background: #3a9e6a; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .response-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase; }
+  .response-time { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-dim); margin-left: auto; }
+  #response-text { font-size: 15px; line-height: 1.75; color: var(--text); font-weight: 300; white-space: pre-wrap; }
+  #response-text strong { font-weight: 500; color: var(--amber); }
+  #response-text em { font-style: italic; color: var(--text-muted); }
+  .cursor { display: inline-block; width: 8px; height: 16px; background: var(--amber); margin-left: 2px; vertical-align: text-bottom; animation: blink 0.8s step-end infinite; }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+  .methods { padding: 60px 0; border-top: 1px solid var(--border); }
+  .methods-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+  .method-card { background: var(--bg2); padding: 20px; }
+  .method-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--text-dim); line-height: 1; margin-bottom: 8px; }
+  .method-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .method-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+  footer { border-top: 1px solid var(--border); padding: 24px 0; }
+  .footer-inner { display: flex; align-items: center; justify-content: space-between; }
+  .footer-copy { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-dim); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+  .hero > * { animation: fadeUp 0.5s ease both; }
+  .hero-kicker { animation-delay: 0.05s; }
+  h1 { animation-delay: 0.1s; }
+  .hero-desc { animation-delay: 0.15s; }
+  .pills { animation-delay: 0.2s; }
+  @media (max-width: 600px) {
+    .hero { padding: 50px 0 40px; }
+    .submit-row { flex-direction: column; align-items: stretch; }
+    .btn-run { width: 100%; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="header-inner">
+      <div class="logo">ФОКУС</div>
+      <div class="tag">AI · Эффективность задач</div>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <section class="hero">
+      <div class="hero-kicker">Умный помощник</div>
+      <h1>Реши задачу<br><span>быстро.</span></h1>
+      <p class="hero-desc">Опишите задачу — получите чёткий план: лучший метод, пошаговые действия и способ сделать быстрее. Без воды, без коучинга.</p>
+      <div class="pills">
+        <div class="pill">80/20</div>
+        <div class="pill">Декомпозиция</div>
+        <div class="pill">Минимальный результат</div>
+        <div class="pill">Ограничение времени</div>
+        <div class="pill">Упрощение</div>
+      </div>
+    </section>
+
+    <section class="input-section">
+      <div class="section-label">Ваша задача</div>
+      <textarea id="task-input" class="task-area"
+        placeholder="Опишите задачу или ситуацию... например: «Нужно подготовить презентацию для клиента к завтрашнему утру, но не знаю с чего начать»"
+        rows="5"></textarea>
+      <div class="submit-row">
+        <div class="hint">Ctrl+Enter чтобы отправить</div>
+        <button class="btn-run" id="run-btn" onclick="runQuery()">
+          <span id="btn-text">Решить</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="response-section" id="response-section">
+      <div class="section-label">Решение</div>
+      <div class="response-box">
+        <div class="response-header">
+          <div class="dot" id="status-dot"></div>
+          <div class="response-label" id="status-label">Анализирую...</div>
+          <div class="response-time" id="response-time"></div>
+        </div>
+        <div id="response-text"></div>
+      </div>
+    </section>
+
+    <section class="methods">
+      <div class="section-label">Методы в основе</div>
+      <div class="methods-grid">
+        <div class="method-card"><div class="method-num">01</div><div class="method-title">Фокус 80/20</div><div class="method-desc">20% действий дают 80% результата</div></div>
+        <div class="method-card"><div class="method-num">02</div><div class="method-title">Мин. результат</div><div class="method-desc">Достаточно — не идеально</div></div>
+        <div class="method-card"><div class="method-num">03</div><div class="method-title">Декомпозиция</div><div class="method-desc">Разбить сложное на простое</div></div>
+        <div class="method-card"><div class="method-num">04</div><div class="method-title">Лимит времени</div><div class="method-desc">Жёсткие рамки ускоряют работу</div></div>
+        <div class="method-card"><div class="method-num">05</div><div class="method-title">Упрощение</div><div class="method-desc">Убрать всё лишнее</div></div>
+      </div>
+    </section>
+  </div>
+</main>
+<footer>
+  <div class="wrap">
+    <div class="footer-inner">
+      <div class="footer-copy">© 2025 ФОКУС · На основе методов эффективности</div>
+      <div class="footer-copy">Powered by Groq AI</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+let startTime;
+
+async function runQuery() {
+  const input = document.getElementById('task-input');
+  const task = input.value.trim();
+  if (!task) {
+    input.focus();
+    input.style.borderColor = '#7a3535';
+    setTimeout(() => input.style.borderColor = '', 1200);
+    return;
+  }
+
+  const btn = document.getElementById('run-btn');
+  const btnText = document.getElementById('btn-text');
+  const section = document.getElementById('response-section');
+  const dot = document.getElementById('status-dot');
+  const label = document.getElementById('status-label');
+  const timeEl = document.getElementById('response-time');
+  const textEl = document.getElementById('response-text');
+
+  btn.disabled = true;
+  btnText.textContent = 'Думаю...';
+  section.classList.add('visible');
+  dot.className = 'dot';
+  dot.style.background = '';
+  dot.style.animation = '';
+  label.textContent = 'Анализирую...';
+  timeEl.textContent = '';
+  textEl.innerHTML = '<span class="cursor"></span>';
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  startTime = Date.now();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: task })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: res.statusText }));
+      throw new Error(err.error || res.statusText);
+    }
+
+    label.textContent = 'Генерирую решение...';
+    textEl.innerHTML = '';
+    let fullText = '';
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(data);
+          // Groq uses OpenAI-compatible SSE format
+          const delta = parsed.choices?.[0]?.delta?.content;
+          if (delta) {
+            fullText += delta;
+            textEl.innerHTML = formatText(fullText);
+            textEl.appendChild(cursor);
+          }
+        } catch {}
+      }
+    }
+
+    textEl.innerHTML = formatText(fullText);
+    dot.className = 'dot done';
+    label.textContent = 'Готово';
+    timeEl.textContent = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
+
+  } catch (err) {
+    textEl.innerHTML = `<span style="color:#e24b4a">Ошибка: ${err.message}</span>`;
+    dot.style.background = '#e24b4a';
+    dot.style.animation = 'none';
+    label.textContent = 'Ошибка';
+  }
+
+  btn.disabled = false;
+  btnText.textContent = 'Решить';
+}
+
+function formatText(t) {
+  return t
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/—\s/g,'<span style="color:var(--amber)">—</span> ')
+    .replace(/•\s/g,'<span style="color:var(--amber)">•</span> ')
+    .replace(/(\d+)\.\s/g,'<strong style="color:var(--amber)">$1.</strong> ')
+    .replace(/\n/g,'<br>');
+}
+
+document.getElementById('task-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) runQuery();
+});
+</script>
+</body>
+</html>
